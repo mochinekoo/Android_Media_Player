@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.activity.EdgeToEdge;
@@ -58,12 +59,18 @@ public class HomeActivity extends AppCompatActivity {
             TimerTask task = new TimerTask() {
                 private final VideoView videoView = findViewById(R.id.videoView);
                 private final ProgressBar progressBar = findViewById(R.id.progressBar);
+                private final TextView currentText = findViewById(R.id.videoCurrentText);
                 @Override
                 public void run() {
                     int videoCurrent = videoView.getCurrentPosition();
                     int videoDuration = videoView.getDuration();
                     float percent = ((float) videoCurrent / videoDuration) * 100;
-                    progressBar.setProgress((int) percent);
+                    runOnUiThread(() -> {
+                        progressBar.setProgress((int) percent);
+                        currentText.setText(String.format("%02d:%02d / %02d:%02d",
+                                videoCurrent/1000/60, videoCurrent/1000%60,
+                                videoDuration/1000/60, videoDuration/1000%60));
+                    });
                 }
             };
             timer.schedule(task, 0L, 1000L);
