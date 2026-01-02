@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import mochineko.media_player_application.R;
 
@@ -49,6 +53,20 @@ public class HomeActivity extends AppCompatActivity {
                 videoView.setVideoURI(uri);
                 videoView.start();
             }
+
+            Timer timer = new Timer();
+            TimerTask task = new TimerTask() {
+                private final VideoView videoView = findViewById(R.id.videoView);
+                private final ProgressBar progressBar = findViewById(R.id.progressBar);
+                @Override
+                public void run() {
+                    int videoCurrent = videoView.getCurrentPosition();
+                    int videoDuration = videoView.getDuration();
+                    float percent = ((float) videoCurrent / videoDuration) * 100;
+                    progressBar.setProgress((int) percent);
+                }
+            };
+            timer.schedule(task, 0L, 1000L);
         }
     }
 }
