@@ -60,6 +60,7 @@ public class HomeActivity extends AppCompatActivity {
                 private final VideoView videoView = findViewById(R.id.videoView);
                 private final ProgressBar progressBar = findViewById(R.id.progressBar);
                 private final TextView currentText = findViewById(R.id.videoCurrentText);
+                private final TextView durationText = findViewById(R.id.videoDurationText);
                 @Override
                 public void run() {
                     int videoCurrent = videoView.getCurrentPosition();
@@ -67,9 +68,8 @@ public class HomeActivity extends AppCompatActivity {
                     float percent = ((float) videoCurrent / videoDuration) * 100;
                     runOnUiThread(() -> {
                         progressBar.setProgress((int) percent);
-                        currentText.setText(String.format("%02d:%02d / %02d:%02d",
-                                videoCurrent/1000/60, videoCurrent/1000%60,
-                                videoDuration/1000/60, videoDuration/1000%60));
+                        currentText.setText(String.format("%02d:%02d", videoCurrent/1000/60, videoCurrent/1000%60));
+                        durationText.setText(String.format("%02d:%02d", videoDuration/1000/60, videoDuration/1000%60));
                     });
                 }
             };
