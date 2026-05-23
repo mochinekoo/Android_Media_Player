@@ -13,7 +13,11 @@
         android:theme="@style/Theme.Media_Player_Application">
         <activity
             android:name=".activity.HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:supportsPictureInPicture="true"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            />
         <activity
             android:name=".MainActivity"
             android:exported="true">

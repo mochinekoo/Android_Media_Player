@@ -2,8 +2,11 @@ package mochineko.media_player_application.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,6 +18,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,6 +46,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        enterPictureInPictureMode();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
@@ -53,6 +63,20 @@ public class HomeActivity extends AppCompatActivity {
                 VideoView videoView = findViewById(R.id.videoView);
                 videoView.setVideoURI(uri);
                 videoView.start();
+
+                Cursor cursor = getContentResolver().query(
+                        uri,
+                        new String[]{OpenableColumns.DISPLAY_NAME},
+                        null,
+                        null,
+                        null
+                );
+                try (cursor) {
+                    cursor.moveToFirst();
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+                    ((TextView)findViewById(R.id.nowVideoName_Text)).setText(name);
+                }
+
             }
 
             Timer timer = new Timer();
