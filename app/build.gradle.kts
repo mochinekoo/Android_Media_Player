@@ -35,6 +35,7 @@ android {
 
 dependencies {
     implementation(libs.appcompat)
+    implementation(libs.fragment)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)

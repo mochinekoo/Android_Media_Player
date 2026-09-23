@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -55,14 +56,26 @@ public class HomeActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
-        if (requestCode == FILE_OPEN_CODE
-                && resultCode == Activity.RESULT_OK) {
-            Uri uri = null;
+
+        VideoView videoView = findViewById(R.id.fragmentContainerView).findViewById(R.id.videoView);
+        Log.d("HomeActivity", "videoView = " + videoView);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        TextView currentText = findViewById(R.id.videoCurrentText);
+        TextView durationText = findViewById(R.id.videoDurationText);
+
+        if (requestCode == FILE_OPEN_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
-                VideoView videoView = findViewById(R.id.videoView);
-                videoView.setVideoURI(uri);
-                videoView.start();
+
+                videoView.post(() -> {
+                    videoView.setVideoURI(uri);
+                    videoView.setOnPreparedListener(mp -> videoView.start());
+                    videoView.setOnErrorListener((mp, what, extra) -> {
+                        Log.e("VideoView", "error what=" + what + " extra=" + extra);
+                        return true;
+                    });
+                });
 
                 Cursor cursor = getContentResolver().query(
                         uri,
@@ -77,18 +90,19 @@ public class HomeActivity extends AppCompatActivity {
                     ((TextView)findViewById(R.id.nowVideoName_Text)).setText(name);
                 }
 
+            } else {
+                uri = null;
             }
 
             Timer timer = new Timer();
             TimerTask task = new TimerTask() {
-                private final VideoView videoView = findViewById(R.id.videoView);
-                private final ProgressBar progressBar = findViewById(R.id.progressBar);
-                private final TextView currentText = findViewById(R.id.videoCurrentText);
-                private final TextView durationText = findViewById(R.id.videoDurationText);
                 @Override
                 public void run() {
                     int videoCurrent = videoView.getCurrentPosition();
                     int videoDuration = videoView.getDuration();
+                    if (videoDuration <= 0) {
+                        return;
+                    }
                     float percent = ((float) videoCurrent / videoDuration) * 100;
                     runOnUiThread(() -> {
                         progressBar.setProgress((int) percent);
@@ -99,5 +113,6 @@ public class HomeActivity extends AppCompatActivity {
             };
             timer.schedule(task, 0L, 1000L);
         }
+
     }
 }
